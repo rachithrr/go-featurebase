@@ -1,5 +1,12 @@
 package gofb
 
+import (
+	"bytes"
+	"errors"
+	"io/ioutil"
+	"net/http"
+)
+
 type Client struct {
 	opt *Options
 }
@@ -10,5 +17,22 @@ func NewClient(opt *Options) *Client {
 }
 
 func (c *Client) Query(query string) (string, error) {
-	return "", nil
+
+	resp, err := http.Post(c.opt.Host+":"+c.opt.Port, "application/x-www-form-urlencoded", bytes.NewBuffer([]byte(query)))
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return "", errors.New(resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
 }
