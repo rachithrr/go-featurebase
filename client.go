@@ -18,7 +18,7 @@ func NewClient(opt *Options) *Client {
 
 func (c *Client) Query(query string) (string, error) {
 
-	resp, err := http.Post(c.opt.Host+":"+c.opt.Port, "application/x-www-form-urlencoded", bytes.NewBuffer([]byte(query)))
+	resp, err := http.Post("http://"+c.opt.Host+":"+c.opt.Port, "application/x-www-form-urlencoded", bytes.NewBuffer([]byte(query)))
 	if err != nil {
 		return "", err
 	}
