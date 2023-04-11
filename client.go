@@ -2,10 +2,26 @@ package gofb
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 )
+
+type Response struct {
+	Schema struct {
+		Fields []Field `json:"fields"`
+	} `json:"schema"`
+	Data          [][]interface{} `json:"data"`
+	ExecutionTime int             `json:"execution-time"`
+}
+
+type Field struct {
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	BaseType string `json:"base-type"`
+	TypeInfo string `json:"-"` // only decimal is using this field, and it is seen as float
+}
 
 type Client struct {
 	opt *Options
@@ -16,23 +32,37 @@ func NewClient(opt *Options) *Client {
 	return &Client{opt: opt}
 }
 
-func (c *Client) Query(query string) (string, error) {
+func (c *Client) Query(query string) (*Response, error) {
 
-	resp, err := http.Post("http://"+c.opt.Host+":"+c.opt.Port, "application/x-www-form-urlencoded", bytes.NewBuffer([]byte(query)))
+	req, err := http.NewRequest(http.MethodPost, "http://"+c.opt.Host+":"+c.opt.Port+"/sql", bytes.NewBuffer([]byte(query)))
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return "", errors.New(resp.Status)
+		return nil, errors.New(resp.Status)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(body), nil
+	var response Response
+
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }

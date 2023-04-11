@@ -6,13 +6,19 @@ func TestClient_Query(t *testing.T) {
 	tests := []struct {
 		name    string
 		query   string
-		want    string
+		want    *Response
 		wantErr bool
 	}{
 		{
+			name:    "DropTable",
+			query:   "drop table if exists test",
+			want:    &Response{},
+			wantErr: false,
+		},
+		{
 			name:    "CreateTable",
 			query:   "create table test (_id id, name string)",
-			want:    "",
+			want:    &Response{},
 			wantErr: false,
 		},
 	}
