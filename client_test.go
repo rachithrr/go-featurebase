@@ -35,7 +35,7 @@ func TestClient_Query(t *testing.T) {
 				t.Errorf("Client.Query() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
+			if !IsEqualResponse(got, tt.want) {
 				t.Errorf("Client.Query() = %v, want %v", got, tt.want)
 			}
 		})

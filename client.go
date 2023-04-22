@@ -12,8 +12,9 @@ type Response struct {
 	Schema struct {
 		Fields []Field `json:"fields"`
 	} `json:"schema"`
-	Data          [][]interface{} `json:"data"`
+	Data          [][]interface{} `json:"data", omitempty`
 	ExecutionTime int             `json:"execution-time"`
+	Error         interface{}     `json:"error", omitempty`
 }
 
 type Field struct {
