@@ -17,8 +17,4 @@ func (opt *Options) init() {
 	if opt.QueryURL == "" {
 		opt.QueryURL = "http://localhost:10101/sql"
 	}
-	if opt.APIKey == "" {
-		opt.APIKey = "default_api_key"
-	}
-}
 }
