@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 type Response struct {
@@ -26,21 +27,31 @@ type Field struct {
 
 type Client struct {
 	opt *Options
+	QueryURL string
+	APIKey   string
 }
 
 func NewClient(opt *Options) *Client {
 	opt.init()
-	return &Client{opt: opt}
+	return &Client{opt: opt, QueryURL: opt.QueryURL, APIKey: opt.APIKey}
 }
 
 func (c *Client) Query(query string) (*Response, error) {
 
-	req, err := http.NewRequest(http.MethodPost, "http://"+c.opt.Host+":"+c.opt.Port+"/sql", bytes.NewBuffer([]byte(query)))
+	u, err := url.Parse(c.QueryURL)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, c.QueryURL, bytes.NewBuffer([]byte(query)))
 	if err != nil {
 		return nil, err
 	}
 
 	client := &http.Client{}
+	if u.APIKey != "" {
+		req.Header.Add("Authorization", c.APIKey)
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
