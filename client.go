@@ -49,7 +49,7 @@ func (c *Client) Query(query string) (*Response, error) {
 	}
 
 	client := &http.Client{}
-	if u.Scheme == "https" {
+	if u.APIKey != "" {
 		req.Header.Add("Authorization", c.APIKey)
 	}
 
