@@ -51,7 +51,8 @@ func (c *client) Query(query string) (*Response, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", "text/plain")
+	req.Header.Add("Accept", "application/json")
 
 	client := &http.Client{}
 	if c.apiKey != "" && u.Scheme == "https" {
