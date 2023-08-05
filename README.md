@@ -32,7 +32,7 @@ func main() {
 	})
 
 	// Create table
-	resp, err := client.Query("CREATE TABLE test (id INT, name STRING)")
+	resp, err := client.Query("CREATE TABLE test (_id INT, name STRING)")
 	handleError(err, resp)
 
 	// Insert row  
