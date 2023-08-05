@@ -26,31 +26,31 @@ type Field struct {
 }
 
 type Client struct {
-	opt *Options
-	QueryURL string
-	APIKey   string
+	opt      *Options
+	queryURL string
+	apiKey   string
 }
 
 func NewClient(opt *Options) *Client {
 	opt.init()
-	return &Client{opt: opt, QueryURL: opt.QueryURL, APIKey: opt.APIKey}
+	return &Client{opt: opt, queryURL: opt.QueryURL, apiKey: opt.APIKey}
 }
 
 func (c *Client) Query(query string) (*Response, error) {
 
-	u, err := url.Parse(c.QueryURL)
+	u, err := url.Parse(c.queryURL)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.QueryURL, bytes.NewBuffer([]byte(query)))
+	req, err := http.NewRequest(http.MethodPost, c.queryURL, bytes.NewBuffer([]byte(query)))
 	if err != nil {
 		return nil, err
 	}
 
 	client := &http.Client{}
-	if u.APIKey != "" {
-		req.Header.Add("Authorization", c.APIKey)
+	if c.apiKey != "" && u.Scheme == "https" {
+		req.Header.Add("Authorization", c.apiKey)
 	}
 
 	resp, err := client.Do(req)
