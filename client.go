@@ -1,12 +1,13 @@
 package gofb
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type Response struct {
@@ -25,28 +26,32 @@ type Field struct {
 	TypeInfo string `json:"-"` // only decimal is using this field, and it is seen as float
 }
 
-type Client struct {
+type client struct {
 	opt      *Options
 	queryURL string
 	apiKey   string
 }
 
-func NewClient(opt *Options) *Client {
+func NewClient(opt *Options) *client {
 	opt.init()
-	return &Client{opt: opt, queryURL: opt.QueryURL, apiKey: opt.APIKey}
+	return &client{opt: opt, queryURL: opt.QueryURL, apiKey: opt.APIKey}
 }
 
-func (c *Client) Query(query string) (*Response, error) {
+func (c *client) Query(query string) (*Response, error) {
 
 	u, err := url.Parse(c.queryURL)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, errors.New("invalid query url"))
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.queryURL, bytes.NewBuffer([]byte(query)))
+	fmt.Printf("query url: %s\n", c.queryURL)
+
+	req, err := http.NewRequest(http.MethodPost, c.queryURL, strings.NewReader(query))
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}
 	if c.apiKey != "" && u.Scheme == "https" {
@@ -60,8 +65,10 @@ func (c *Client) Query(query string) (*Response, error) {
 
 	defer resp.Body.Close()
 
+	fmt.Println(query)
+
 	if resp.StatusCode != 200 {
-		return nil, errors.New(resp.Status)
+		return nil, errors.Join(errors.New(resp.Status), errors.New("query failed"))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)

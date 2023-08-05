@@ -1,6 +1,8 @@
 package gofb
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestClient_Query(t *testing.T) {
 	tests := []struct {
@@ -24,12 +26,11 @@ func TestClient_Query(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &Client{
-				opt: &Options{
+			c := NewClient(
+				&Options{
 					Host: "localhost",
 					Port: "10101",
-				},
-			}
+				})
 			got, err := c.Query(tt.query)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Client.Query() error = %v, wantErr %v", err, tt.wantErr)
